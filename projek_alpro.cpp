@@ -1,12 +1,6 @@
-#include <cstdio>
 #include <iostream>
-#include <cstring>
 #include <iomanip>
-#include <vector>
-#include <algorithm>
 using namespace std;
-
-FILE* market;
 
 struct stok {
     string nama_barang;
@@ -19,22 +13,23 @@ stok* head = NULL;
 stok* tail = NULL;
 
 // ============================================================
-// Simpan seluruh linked list ke file (untuk update & hapus)
+// Fungsi manual untuk menukar data (Pengganti std::swap)
 // ============================================================
-void simpan_semua() {
-    market = fopen("projek.txt", "w");
-    if (market == NULL) {
-        cout << "Gagal membuka file untuk disimpan!\n";
-        return;
-    }
-    stok* bantu = head;
-    while (bantu != NULL) {
-        // Ganti spasi dengan underscore agar mudah dibaca kembali
-        string nama = bantu->nama_barang;
-        fprintf(market, "%s %d %d\n", nama.c_str(), bantu->harga, bantu->jumlah);
-        bantu = bantu->next;
-    }
-    fclose(market);
+void tukarData(stok* a, stok* b) {
+    // Tukar Nama
+    string tempNama = a->nama_barang;
+    a->nama_barang = b->nama_barang;
+    b->nama_barang = tempNama;
+
+    // Tukar Harga
+    int tempHarga = a->harga;
+    a->harga = b->harga;
+    b->harga = tempHarga;
+
+    // Tukar Jumlah
+    int tempJumlah = a->jumlah;
+    a->jumlah = b->jumlah;
+    b->jumlah = tempJumlah;
 }
 
 // ============================================================
@@ -45,37 +40,109 @@ void cetakHeader() {
          << setw(25) << "Nama Barang"
          << setw(12) << "Harga (Rp)"
          << setw(10) << "Stok" << "\n";
-    cout << string(47, '-') << "\n";
+    cout << "-----------------------------------------------\n";
 }
 
 // ============================================================
-// Cetak data terurut berdasarkan kriteria
-// kriteria: 1 = stok, 2 = harga
-// ascending: true = terkecil dulu, false = terbesar dulu
+// Fungsi bantu untuk menyalin Linked List
+// ============================================================
+stok* salinList() {
+    if (head == NULL) return NULL;
+    
+    stok* newHead = NULL;
+    stok* newTail = NULL;
+    stok* bantu = head;
+    
+    while (bantu != NULL) {
+        stok* nodeBaru = new stok;
+        nodeBaru->nama_barang = bantu->nama_barang;
+        nodeBaru->harga = bantu->harga;
+        nodeBaru->jumlah = bantu->jumlah;
+        nodeBaru->next = NULL;
+        nodeBaru->prev = NULL;
+        
+        if (newHead == NULL) {
+            newHead = nodeBaru;
+            newTail = nodeBaru;
+        } else {
+            newTail->next = nodeBaru;
+            nodeBaru->prev = newTail;
+            newTail = nodeBaru;
+        }
+        bantu = bantu->next;
+    }
+    return newHead;
+}
+
+// ============================================================
+// Fungsi bantu untuk menghapus list salinan dari memori
+// ============================================================
+void hapusListSalinan(stok* h) {
+    while (h != NULL) {
+        stok* temp = h;
+        h = h->next;
+        delete temp;
+    }
+}
+
+// ============================================================
+// Cetak data terurut berdasarkan kriteria (Bubble Sort Manual)
 // ============================================================
 void cetakTerurut(int kriteria, bool ascending) {
-    vector<stok*> daftar;
-    for (stok* bantu = head; bantu != NULL; bantu = bantu->next) {
-        daftar.push_back(bantu);
-    }
-    if (daftar.empty()) {
+    if (head == NULL) {
         cout << "Tidak ada barang dalam daftar.\n";
         return;
     }
-    sort(daftar.begin(), daftar.end(), [kriteria, ascending](stok* a, stok* b) {
-        if (kriteria == 1) {
-            return ascending ? a->jumlah < b->jumlah : a->jumlah > b->jumlah;
+
+    stok* listSalinan = salinList();
+
+    bool swapped;
+    stok* ptr1;
+    stok* lptr = NULL;
+
+    do {
+        swapped = false;
+        ptr1 = listSalinan;
+
+        while (ptr1->next != lptr) {
+            bool kondisiTukar = false;
+            
+            if (kriteria == 1) { // Berdasarkan Stok
+                if (ascending) {
+                    if (ptr1->jumlah > ptr1->next->jumlah) kondisiTukar = true;
+                } else {
+                    if (ptr1->jumlah < ptr1->next->jumlah) kondisiTukar = true;
+                }
+            } else { // Berdasarkan Harga
+                if (ascending) {
+                    if (ptr1->harga > ptr1->next->harga) kondisiTukar = true;
+                } else {
+                    if (ptr1->harga < ptr1->next->harga) kondisiTukar = true;
+                }
+            }
+
+            if (kondisiTukar) {
+                // Menggunakan fungsi tukar manual buatan kita sendiri
+                tukarData(ptr1, ptr1->next);
+                swapped = true;
+            }
+            ptr1 = ptr1->next;
         }
-        return ascending ? a->harga < b->harga : a->harga > b->harga;
-    });
+        lptr = ptr1;
+    } while (swapped);
+
     cetakHeader();
-	while (fscanf(market, "%25s %d %d", nama_barang, &harga, &jumlah) != EOF) {
-    cout << left
-         << setw(25) << nama_barang
-         << setw(12) << harga
-         << setw(10) << jumlah << "\n";
-}
+    stok* bantu = listSalinan;
+    while (bantu != NULL) {
+        cout << left
+             << setw(25) << bantu->nama_barang
+             << setw(12) << bantu->harga
+             << setw(10) << bantu->jumlah << "\n";
+        bantu = bantu->next;
+    }
     cout << "\n";
+
+    hapusListSalinan(listSalinan);
 }
 
 // ============================================================
@@ -152,16 +219,6 @@ void cari_barang(string nama) {
 // Menu 3: Tambah barang baru
 // ============================================================
 void tambah_barang(string nama, int harga, int jumlah) {
-    // Simpan ke file
-    market = fopen("projek.txt", "a");
-    if (market == NULL) {
-        cout << "Gagal membuka file!\n";
-        return;
-    }
-    fprintf(market, "%s %d %d\n", nama.c_str(), harga, jumlah);
-    fclose(market);
-
-    // Masukkan ke linked list
     stok* nodeBaru = new stok;
     nodeBaru->nama_barang = nama;
     nodeBaru->harga = harga;
@@ -190,15 +247,13 @@ void hapus_barang(string nama) {
     while (bantu != NULL) {
         if (bantu->nama_barang == nama) {
             ketemu = true;
-            // Putus sambungan node
             if (bantu->prev != NULL) bantu->prev->next = bantu->next;
-            else head = bantu->next; // Node adalah head
+            else head = bantu->next;
 
             if (bantu->next != NULL) bantu->next->prev = bantu->prev;
-            else tail = bantu->prev; // Node adalah tail
+            else tail = bantu->prev;
 
             delete bantu;
-            simpan_semua(); // Update file
             cout << "Barang \"" << nama << "\" berhasil dihapus.\n";
             break;
         }
@@ -220,7 +275,6 @@ void tambah_stok(string nama, int tambahan) {
     while (bantu != NULL) {
         if (bantu->nama_barang == nama) {
             bantu->jumlah += tambahan;
-            simpan_semua();
             cout << "Stok \"" << nama << "\" berhasil ditambah. "
                  << "Stok sekarang: " << bantu->jumlah << "\n";
             ketemu = true;
@@ -248,7 +302,6 @@ void kurangi_stok(string nama, int kurang) {
                      << bantu->jumlah << ")!\n";
             } else {
                 bantu->jumlah -= kurang;
-                simpan_semua();
                 cout << "Stok \"" << nama << "\" berhasil dikurangi. "
                      << "Stok sekarang: " << bantu->jumlah << "\n";
             }
@@ -264,41 +317,9 @@ void kurangi_stok(string nama, int kurang) {
 }
 
 // ============================================================
-// Muat data dari file ke linked list saat program dimulai
-// ============================================================
-void masuk_barang() {
-    market = fopen("projek.txt", "r");
-    if (market == NULL) return;
-
-    char nama[100];
-    int hrg, jml;
-
-    while (fscanf(market, "%99s %d %d", nama, &hrg, &jml) == 3) {
-        stok* nodeBaru = new stok;
-        nodeBaru->nama_barang = nama;
-        nodeBaru->harga = hrg;
-        nodeBaru->jumlah = jml;
-        nodeBaru->next = NULL;
-        nodeBaru->prev = NULL;
-
-        if (head == NULL) {
-            head = nodeBaru;
-            tail = nodeBaru;
-        } else {
-            tail->next = nodeBaru;
-            nodeBaru->prev = tail;
-            tail = nodeBaru;
-        }
-    }
-    fclose(market);
-}
-
-// ============================================================
 // MAIN
 // ============================================================
 int main() {
-    masuk_barang();
-
     int menu;
     do {
         cout << "\n========= MENU STOK BARANG =========\n";
@@ -308,11 +329,11 @@ int main() {
         cout << "4. Hapus Barang\n";
         cout << "5. Tambah Stok\n";
         cout << "6. Kurangi Stok\n";
-        cout << "0. Keluar\n";        // FIX: dulunya ada dua menu nomor 5
+        cout << "0. Keluar\n";
         cout << "=====================================\n";
         cout << "Pilih Menu: ";
         cin >> menu;
-        cin.ignore(); // Bersihkan newline sebelum getline
+        cin.ignore(); 
 
         switch (menu) {
         case 1: {
@@ -322,7 +343,7 @@ int main() {
         case 2: {
             string nama;
             cout << "Masukkan Nama Barang: ";
-            getline(cin, nama); // FIX: getline agar bisa baca nama dengan spasi
+            getline(cin, nama);
             cari_barang(nama);
         } break;
 
@@ -330,7 +351,7 @@ int main() {
             string nama;
             int harga, jumlah;
             cout << "Masukkan Nama Barang  : ";
-            getline(cin, nama); // FIX: getline
+            getline(cin, nama);
             cout << "Masukkan Harga Barang : ";
             cin >> harga;
             cout << "Masukkan Jumlah Barang: ";
@@ -376,7 +397,10 @@ int main() {
             cout << "Pilihan tidak valid. Coba lagi.\n";
             break;
         }
-    } while (menu != 0); // FIX: kondisi keluar disesuaikan dengan menu 0
+    } while (menu != 0);
+
+    // Hapus seluruh linked list utama dari memori sebelum keluar program
+    hapusListSalinan(head);
 
     return 0;
 }
