@@ -14,9 +14,8 @@ struct stok {
 stok* head = NULL;
 stok* tail = NULL;
 
-// ============================================================
-// Fungsi manual untuk menukar data (Pengganti std::swap)
-// ============================================================
+
+// Fungsi manual untuk menukar data
 void tukarData(stok* a, stok* b) {
     string tempNama = a->nama_barang;
     a->nama_barang = b->nama_barang;
@@ -31,9 +30,8 @@ void tukarData(stok* a, stok* b) {
     b->jumlah = tempJumlah;
 }
 
-// ============================================================
+
 // Cetak header tabel
-// ============================================================
 void cetakHeader() {
     cout << "\n" << left
          << setw(25) << "Nama Barang"
@@ -42,9 +40,8 @@ void cetakHeader() {
     cout << "-----------------------------------------------\n";
 }
 
-// ============================================================
+
 // Fungsi bantu untuk menyalin Linked List
-// ============================================================
 stok* salinList() {
     if (head == NULL) return NULL;
     
