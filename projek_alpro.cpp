@@ -2,6 +2,8 @@
 #include <iomanip>
 using namespace std;
 
+FILE *market;
+
 struct stok {
     string nama_barang;
     int harga, jumlah;
