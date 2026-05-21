@@ -18,17 +18,14 @@ stok* tail = NULL;
 // Fungsi manual untuk menukar data (Pengganti std::swap)
 // ============================================================
 void tukarData(stok* a, stok* b) {
-    // Tukar Nama
     string tempNama = a->nama_barang;
     a->nama_barang = b->nama_barang;
     b->nama_barang = tempNama;
 
-    // Tukar Harga
     int tempHarga = a->harga;
     a->harga = b->harga;
     b->harga = tempHarga;
 
-    // Tukar Jumlah
     int tempJumlah = a->jumlah;
     a->jumlah = b->jumlah;
     b->jumlah = tempJumlah;
@@ -97,7 +94,6 @@ void cetakTerurut(int kriteria, bool ascending) {
     }
 
     stok* listSalinan = salinList();
-
     bool swapped;
     stok* ptr1;
     stok* lptr = NULL;
@@ -124,7 +120,6 @@ void cetakTerurut(int kriteria, bool ascending) {
             }
 
             if (kondisiTukar) {
-                // Menggunakan fungsi tukar manual buatan kita sendiri
                 tukarData(ptr1, ptr1->next);
                 swapped = true;
             }
@@ -164,26 +159,18 @@ void lihat_barang() {
         cout << "2. Stok tersedikit\n";
         cout << "Pilihan: ";
         cin >> tampil;
-        if (tampil == 1) {
-            cetakTerurut(1, false);
-        } else if (tampil == 2) {
-            cetakTerurut(1, true);
-        } else {
-            cout << "Pilihan tidak valid.\n";
-        }
+        if (tampil == 1) cetakTerurut(1, false);
+        else if (tampil == 2) cetakTerurut(1, true);
+        else cout << "Pilihan tidak valid.\n";
     } break;
     case 2: {
         cout << "1. Harga termahal\n";
         cout << "2. Harga termurah\n";
         cout << "Pilihan: ";
         cin >> tampil;
-        if (tampil == 1) {
-            cetakTerurut(2, false);
-        } else if (tampil == 2) {
-            cetakTerurut(2, true);
-        } else {
-            cout << "Pilihan tidak valid.\n";
-        }
+        if (tampil == 1) cetakTerurut(2, false);
+        else if (tampil == 2) cetakTerurut(2, true);
+        else cout << "Pilihan tidak valid.\n";
     } break;
     default:
         cout << "Pilihan tidak valid.\n";
@@ -220,7 +207,8 @@ void cari_barang(string nama) {
 // ============================================================
 // Menu 3: Tambah barang baru
 // ============================================================
-void tambah_barang(string nama, int harga, int jumlah) {
+// Parameter dariFile ditambahkan agar proses muat database tidak membanjiri teks di layar
+void tambah_barang(string nama, int harga, int jumlah, bool dariFile = false) {
     stok* nodeBaru = new stok;
     nodeBaru->nama_barang = nama;
     nodeBaru->harga = harga;
@@ -236,7 +224,10 @@ void tambah_barang(string nama, int harga, int jumlah) {
         nodeBaru->prev = tail;
         tail = nodeBaru;
     }
-    cout << "Barang \"" << nama << "\" berhasil ditambahkan.\n";
+    
+    if (!dariFile) {
+        cout << "Barang \"" << nama << "\" berhasil ditambahkan.\n";
+    }
 }
 
 // ============================================================
@@ -277,8 +268,7 @@ void tambah_stok(string nama, int tambahan) {
     while (bantu != NULL) {
         if (bantu->nama_barang == nama) {
             bantu->jumlah += tambahan;
-            cout << "Stok \"" << nama << "\" berhasil ditambah. "
-                 << "Stok sekarang: " << bantu->jumlah << "\n";
+            cout << "Stok \"" << nama << "\" berhasil ditambah. Stok sekarang: " << bantu->jumlah << "\n";
             ketemu = true;
             break;
         }
@@ -300,12 +290,10 @@ void kurangi_stok(string nama, int kurang) {
     while (bantu != NULL) {
         if (bantu->nama_barang == nama) {
             if (kurang > bantu->jumlah) {
-                cout << "Pengurangan melebihi stok yang tersedia ("
-                     << bantu->jumlah << ")!\n";
+                cout << "Pengurangan melebihi stok yang tersedia (" << bantu->jumlah << ")!\n";
             } else {
                 bantu->jumlah -= kurang;
-                cout << "Stok \"" << nama << "\" berhasil dikurangi. "
-                     << "Stok sekarang: " << bantu->jumlah << "\n";
+                cout << "Stok \"" << nama << "\" berhasil dikurangi. Stok sekarang: " << bantu->jumlah << "\n";
             }
             ketemu = true;
             break;
@@ -319,9 +307,58 @@ void kurangi_stok(string nama, int kurang) {
 }
 
 // ============================================================
+// FITUR FILE: Menyimpan data dari Linked List ke File text
+// ============================================================
+void simpan_ke_file() {
+    market = fopen("database_market.txt", "w");
+    if (market == NULL) {
+        cout << "Gagal membuka file untuk menyimpan data!\n";
+        return;
+    }
+
+    stok* bantu = head;
+    while (bantu != NULL) {
+        // Kita cetak per baris agar aman dari gangguan spasi pada nama barang
+        fprintf(market, "%s\n%d\n%d\n", bantu->nama_barang.c_str(), bantu->harga, bantu->jumlah);
+        bantu = bantu->next;
+    }
+
+    fclose(market);
+    cout << "Data berhasil disimpan ke file 'database_market.txt'.\n";
+}
+
+// ============================================================
+// FITUR FILE: Memuat data dari File text ke Linked List
+// ============================================================
+void muat_dari_file() {
+    market = fopen("database_market.txt", "r");
+    if (market == NULL) {
+        cout << "Belum ada file database. Membuat data baru di memori...\n";
+        return;
+    }
+
+    char temp_nama[100];
+    int harga, jumlah;
+
+    // Membaca baris demi baris sampai file habis (EOF)
+    while (fscanf(market, " %[^\n]", temp_nama) == 1) {
+        if (fscanf(market, "%d %d", &harga, &jumlah) == 2) {
+            tambah_barang(string(temp_nama), harga, jumlah, true);
+        }
+    }
+
+    fclose(market);
+    cout << "Database berhasil dimuat dari file.\n";
+}
+
+// ============================================================
 // MAIN
 // ============================================================
 int main() {
+    // Otomatis load data ketika program dinyalakan
+    cout << "=== Sinkronisasi Database ===\n";
+    muat_dari_file();
+
     int menu;
     do {
         cout << "\n========= MENU STOK BARANG =========\n";
@@ -331,16 +368,17 @@ int main() {
         cout << "4. Hapus Barang\n";
         cout << "5. Tambah Stok\n";
         cout << "6. Kurangi Stok\n";
-        cout << "0. Keluar\n";
+        cout << "7. Simpan Manual ke File\n";
+        cout << "0. Keluar & Simpan Otomatis\n";
         cout << "=====================================\n";
         cout << "Pilih Menu: ";
         cin >> menu;
         cin.ignore(); 
 
         switch (menu) {
-        case 1: {
+        case 1:
             lihat_barang();
-        } break;
+            break;
 
         case 2: {
             string nama;
@@ -391,7 +429,13 @@ int main() {
             kurangi_stok(nama, kurang);
         } break;
 
+        case 7:
+            simpan_ke_file();
+            break;
+
         case 0:
+            cout << "Menyimpan data sebelum keluar...\n";
+            simpan_ke_file();
             cout << "Terima kasih! Program selesai.\n";
             break;
 
