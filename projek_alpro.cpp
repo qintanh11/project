@@ -368,8 +368,7 @@ int main() {
         cout << "4. Hapus Barang\n";
         cout << "5. Tambah Stok\n";
         cout << "6. Kurangi Stok\n";
-        cout << "7. Simpan Manual ke File\n";
-        cout << "0. Keluar & Simpan Otomatis\n";
+        cout << "0. Keluar\n";
         cout << "=====================================\n";
         cout << "Pilih Menu: ";
         cin >> menu;
@@ -398,6 +397,7 @@ int main() {
             cin >> jumlah;
             cin.ignore();
             tambah_barang(nama, harga, jumlah);
+            simpan_ke_file();
         } break;
 
         case 4: {
@@ -405,6 +405,8 @@ int main() {
             cout << "Masukkan Nama Barang yang akan dihapus: ";
             getline(cin, nama);
             hapus_barang(nama);
+             simpan_ke_file();
+
         } break;
 
         case 5: {
@@ -416,6 +418,8 @@ int main() {
             cin >> tambahan;
             cin.ignore();
             tambah_stok(nama, tambahan);
+             simpan_ke_file();
+
         } break;
 
         case 6: {
@@ -427,16 +431,11 @@ int main() {
             cin >> kurang;
             cin.ignore();
             kurangi_stok(nama, kurang);
+             simpan_ke_file();
         } break;
 
-        case 7:
-            simpan_ke_file();
-            break;
-
         case 0:
-            cout << "Menyimpan data sebelum keluar...\n";
-            simpan_ke_file();
-            cout << "Terima kasih! Program selesai.\n";
+            cout << "Terima kasih! Datang kembali.\n";
             break;
 
         default:
