@@ -290,7 +290,7 @@ void kurangi_stok(string nama, int kurang) {
 
 // Simpan data ke file
 void simpan_ke_file() {
-    market = fopen("database_market.txt", "w");
+    market = fopen("data_barang.txt", "w");
     if (market == NULL) {
         cout << "Gagal membuka file untuk menyimpan data!\n";
         return;
@@ -304,33 +304,12 @@ void simpan_ke_file() {
     }
 
     fclose(market);
-    cout << "Data berhasil disimpan ke file 'database_market.txt'.\n";
-}
-
-// Simpan file ke linked list
-void buka_file() {
-    market = fopen("database_market.txt", "r");
-    if (market == NULL) {
-        cout << "Belum ada file database. Membuat data baru di memori...\n";
-        return;
-    }
-
-    char temp_nama[100];
-    int harga, jumlah;
-
-    while (fscanf(market, " %[^\n]", temp_nama) == 1) {
-        if (fscanf(market, "%d %d", &harga, &jumlah) == 2) {
-            tambah_barang(string(temp_nama), harga, jumlah, true);
-        }
-    }
-
-    fclose(market);
-    cout << "Database berhasil dimuat dari file.\n";
+    cout << "Data berhasil disimpan ke file 'data_barang.txt'.\n";
 }
 
 // MAIN
 int main() {
-    market = fopen("database_market.txt", "r");
+    market = fopen("data_barang.txt", "r");
     char temp_nama[100];
     int harga, jumlah;
     while (fscanf(market, " %[^\n]", temp_nama) == 1) {
