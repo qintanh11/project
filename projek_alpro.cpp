@@ -17,32 +17,22 @@ stok* tail = NULL;
 
 // Fungsi manual untuk menukar data
 void tukarData(stok* a, stok* b) {
-    string tempNama = a->nama_barang;
+    string tukarnama = a->nama_barang;
     a->nama_barang = b->nama_barang;
-    b->nama_barang = tempNama;
+    b->nama_barang = tukarnama;
 
-    int tempHarga = a->harga;
+    int tukarharga = a->harga;
     a->harga = b->harga;
-    b->harga = tempHarga;
+    b->harga = tukarharga;
 
-    int tempJumlah = a->jumlah;
+    int tukarjumlah = a->jumlah;
     a->jumlah = b->jumlah;
-    b->jumlah = tempJumlah;
-}
-
-
-// Cetak header tabel
-void cetakHeader() {
-    cout << "\n" << left
-         << setw(25) << "Nama Barang"
-         << setw(12) << "Harga (Rp)"
-         << setw(10) << "Stok" << "\n";
-    cout << "-----------------------------------------------\n";
+    b->jumlah = tukarjumlah;
 }
 
 
 // Fungsi bantu untuk menyalin Linked List
-stok* salinList() {
+stok* buatlinkedlist() {
     if (head == NULL) return NULL;
     
     stok* newHead = NULL;
@@ -50,29 +40,27 @@ stok* salinList() {
     stok* bantu = head;
     
     while (bantu != NULL) {
-        stok* nodeBaru = new stok;
-        nodeBaru->nama_barang = bantu->nama_barang;
-        nodeBaru->harga = bantu->harga;
-        nodeBaru->jumlah = bantu->jumlah;
-        nodeBaru->next = NULL;
-        nodeBaru->prev = NULL;
+        stok* barangbaru = new stok;
+        barangbaru->nama_barang = bantu->nama_barang;
+        barangbaru->harga = bantu->harga;
+        barangbaru->jumlah = bantu->jumlah;
+        barangbaru->next = NULL;
+        barangbaru->prev = NULL;
         
         if (newHead == NULL) {
-            newHead = nodeBaru;
-            newTail = nodeBaru;
+            newHead = barangbaru;
+            newTail = barangbaru;
         } else {
-            newTail->next = nodeBaru;
-            nodeBaru->prev = newTail;
-            newTail = nodeBaru;
+            newTail->next = barangbaru;
+            barangbaru->prev = newTail;
+            newTail = barangbaru;
         }
         bantu = bantu->next;
     }
     return newHead;
 }
 
-// ============================================================
 // Fungsi bantu untuk menghapus list salinan dari memori
-// ============================================================
 void hapusListSalinan(stok* h) {
     while (h != NULL) {
         stok* temp = h;
@@ -81,16 +69,14 @@ void hapusListSalinan(stok* h) {
     }
 }
 
-// ============================================================
 // Cetak data terurut berdasarkan kriteria (Bubble Sort Manual)
-// ============================================================
 void cetakTerurut(int kriteria, bool ascending) {
     if (head == NULL) {
         cout << "Tidak ada barang dalam daftar.\n";
         return;
     }
 
-    stok* listSalinan = salinList();
+    stok* listSalinan = buatlinkedlist();
     bool swapped;
     stok* ptr1;
     stok* lptr = NULL;
@@ -125,7 +111,12 @@ void cetakTerurut(int kriteria, bool ascending) {
         lptr = ptr1;
     } while (swapped);
 
-    cetakHeader();
+     cout << "\n" << left
+         << setw(25) << "Nama Barang"
+         << setw(12) << "Harga (Rp)"
+         << setw(10) << "Stok" << "\n";
+    cout << "-----------------------------------------------\n";
+
     stok* bantu = listSalinan;
     while (bantu != NULL) {
         cout << left
@@ -139,9 +130,8 @@ void cetakTerurut(int kriteria, bool ascending) {
     hapusListSalinan(listSalinan);
 }
 
-// ============================================================
+
 // Menu 1: Lihat barang dengan sorting
-// ============================================================
 void lihat_barang() {
     int tampil, berdasarkan;
     cout << "\nTampilkan berdasarkan:\n";
@@ -175,9 +165,7 @@ void lihat_barang() {
     }
 }
 
-// ============================================================
 // Menu 2: Cari barang (searching by name)
-// ============================================================
 void cari_barang(string nama) {
     stok* bantu = head;
     bool ketemu = false;
@@ -185,7 +173,13 @@ void cari_barang(string nama) {
     while (bantu != NULL) {
         if (bantu->nama_barang == nama) {
             cout << "Barang ditemukan:\n";
-            cetakHeader();
+
+        cout << "\n" << left
+         << setw(25) << "Nama Barang"
+         << setw(12) << "Harga (Rp)"
+         << setw(10) << "Stok" << "\n";
+    cout << "-----------------------------------------------\n";
+
             cout << left
                  << setw(25) << bantu->nama_barang
                  << setw(12) << bantu->harga
@@ -201,10 +195,7 @@ void cari_barang(string nama) {
     }
 }
 
-// ============================================================
 // Menu 3: Tambah barang baru
-// ============================================================
-// Parameter dariFile ditambahkan agar proses muat database tidak membanjiri teks di layar
 void tambah_barang(string nama, int harga, int jumlah, bool dariFile = false) {
     stok* nodeBaru = new stok;
     nodeBaru->nama_barang = nama;
@@ -227,9 +218,7 @@ void tambah_barang(string nama, int harga, int jumlah, bool dariFile = false) {
     }
 }
 
-// ============================================================
 // Menu 4: Hapus barang
-// ============================================================
 void hapus_barang(string nama) {
     stok* bantu = head;
     bool ketemu = false;
@@ -255,9 +244,7 @@ void hapus_barang(string nama) {
     }
 }
 
-// ============================================================
 // Menu 5: Tambah stok barang yang sudah ada
-// ============================================================
 void tambah_stok(string nama, int tambahan) {
     stok* bantu = head;
     bool ketemu = false;
@@ -277,9 +264,7 @@ void tambah_stok(string nama, int tambahan) {
     }
 }
 
-// ============================================================
 // Menu 6: Kurangi stok barang
-// ============================================================
 void kurangi_stok(string nama, int kurang) {
     stok* bantu = head;
     bool ketemu = false;
@@ -303,9 +288,7 @@ void kurangi_stok(string nama, int kurang) {
     }
 }
 
-// ============================================================
-// FITUR FILE: Menyimpan data dari Linked List ke File text
-// ============================================================
+// Simpan data ke file
 void simpan_ke_file() {
     market = fopen("database_market.txt", "w");
     if (market == NULL) {
@@ -324,10 +307,8 @@ void simpan_ke_file() {
     cout << "Data berhasil disimpan ke file 'database_market.txt'.\n";
 }
 
-// ============================================================
-// FITUR FILE: Memuat data dari File text ke Linked List
-// ============================================================
-void muat_dari_file() {
+// Simpan file ke linked list
+void buka_file() {
     market = fopen("database_market.txt", "r");
     if (market == NULL) {
         cout << "Belum ada file database. Membuat data baru di memori...\n";
@@ -337,7 +318,6 @@ void muat_dari_file() {
     char temp_nama[100];
     int harga, jumlah;
 
-    // Membaca baris demi baris sampai file habis (EOF)
     while (fscanf(market, " %[^\n]", temp_nama) == 1) {
         if (fscanf(market, "%d %d", &harga, &jumlah) == 2) {
             tambah_barang(string(temp_nama), harga, jumlah, true);
@@ -348,15 +328,19 @@ void muat_dari_file() {
     cout << "Database berhasil dimuat dari file.\n";
 }
 
-// ============================================================
 // MAIN
-// ============================================================
 int main() {
-    // Otomatis load data ketika program dinyalakan
-    cout << "=== Sinkronisasi Database ===\n";
-    muat_dari_file();
-
+    market = fopen("database_market.txt", "r");
+    char temp_nama[100];
+    int harga, jumlah;
+    while (fscanf(market, " %[^\n]", temp_nama) == 1) {
+        if (fscanf(market, "%d %d", &harga, &jumlah) == 2) {
+            tambah_barang(string(temp_nama), harga, jumlah, true);
+        }
+    }
+    fclose(market);
     int menu;
+    
     do {
         cout << "\n========= MENU STOK BARANG =========\n";
         cout << "1. Lihat Barang (Sorting)\n";
