@@ -1,0 +1,18 @@
+sabun batang
+14000
+73
+sabun cair
+17000
+83
+sampo
+23000
+79
+bumbu racik
+3000
+26
+sendal jepit
+20000
+7
+sampo
+23000
+5

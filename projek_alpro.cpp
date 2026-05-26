@@ -304,7 +304,7 @@ void simpan_ke_file() {
     }
 
     fclose(market);
-    cout << "Data berhasil disimpan ke file 'data_barang.txt'.\n";
+    cout << "Data berhasil disimpan.\n";
 }
 
 // MAIN
@@ -409,3 +409,4 @@ int main() {
 
     return 0;
 }
+
